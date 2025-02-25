@@ -1,0 +1,160 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+struct node
+{
+	char fname[50];
+	int bno;
+	struct node *next;
+}*ptr,*temp,*first=NULL;
+
+struct table
+{
+	char fname[50];
+	int start,length, index[30];
+}t[30];
+
+int d,used,frees,i,j,k=0;
+
+void userinput()
+{
+	printf("Enter disk size:");
+	scanf("%d",&d);
+	used=0;
+	frees=d;
+	for(i=0;i<d;i++)
+	{
+		ptr=malloc(sizeof(struct node));
+		strcpy(ptr->fname,"");
+		ptr->bno=i;
+		ptr->next=NULL;
+		if(first==NULL)
+			temp=first=ptr;
+		else
+		{
+			temp->next=ptr;
+			temp=temp->next;
+		}
+	}
+}
+
+int checkspace(int size)
+{
+	int c,no;
+	temp=first;
+	while(temp)
+	{
+		while(!(strcmp(temp->fname,"")==0)&&temp->next!=NULL)
+			temp=temp->next;
+		no=temp->bno;
+		c=0;
+		while(temp->next!=NULL)
+		{     if(strcmp(temp->fname,"")==0)
+			c++;
+			temp=temp->next;
+		}
+		if(c>=size)
+			return no;
+	}
+	return -1;
+}
+
+void allocate()
+{
+	printf("\n Enter file name ");
+	scanf("%s",t[k].fname);
+	printf("\nEnter file size ");
+	scanf("%d",&t[k].length);
+	j=checkspace(t[k].length);
+	if(j!=-1)
+	{
+		cnt=0;
+		t[k].start=j;
+		frees=frees-t[k].length;
+		used=used+t[k].length;
+		temp=first;
+		index[cnt++]=j;
+		while(temp->bno!=j)
+			temp=temp->next;
+		i=2;
+		while(i<=t[k].length && temp->next!=NULL)
+		{     if(strcmp(temp->fname,"")==0)
+			{
+				index[cnt++]=temp->bno;
+				strcpy(temp->fname,t[k].fname);
+				i++;
+			}
+			
+			temp=temp->next;
+			
+		}
+		k++;
+	}
+	else
+		printf("no space available");
+}
+
+removeentry(char *s)
+{
+	for(i=0;i<k;i++)
+	{
+		if(strcmp(t[i].fname,s)==0)
+		{
+			while(i<k-1)
+			{
+				t[i]=t[i+1];
+				i++;
+			}
+		}
+	}
+	k--;
+}
+
+void deallocate()
+{
+	char s[50];
+	printf("Enter filename ");
+	scanf("%s",s);
+	for(i=0;i<k;i++)
+	{
+		if(strcmp(t[i].fname,s)==0)
+		{
+			frees=frees+t[k].length;
+			used=used-t[k].length;	
+		}
+	}
+	temp=first;
+	while(temp)
+	{
+		if(strcmp(temp->fname,s)==0)		
+			strcpy(temp->fname,"");
+		temp=temp->next;
+	}
+	removeentry(s);
+}
+
+void showspace()
+{
+	printf("free space is: %d",frees);
+	printf("used space is: %d",used);
+}
+
+int main()
+{
+	int ch;
+	userinput();
+
+	while(1)
+	{
+		printf("\n1:allocate\n2:deallocate\n3:space\n4:exit\nEnter ur choice");
+		scanf("%d",&ch);
+		switch(ch)
+		{
+			case 1:	allocate(); break;
+			case 2:	deallocate(); break;
+			case 3: showspace(); break;
+			case 4: exit(1);
+		}
+	}
+}
